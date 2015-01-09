@@ -1,0 +1,22 @@
+{
+  "name": "nodejs-img-server",
+  "version": "0.0.1",
+  "description": "Simple image server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/DBProductions/nodejs-img-server.git"
+  },
+  "author": "DBProductions",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DBProductions/nodejs-img-server/issues"
+  },
+  "homepage": "https://github.com/DBProductions/nodejs-img-server",
+  "dependencies": {
+    "lwip": "0.0.6"
+  }
+}
