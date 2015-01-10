@@ -1,10 +1,10 @@
 var http = require('http'),
     fs = require('fs'),
-	path = require('path'),
-	url = require('url'),
-	querystring = require('querystring'),
-	lwip = require('lwip'),
-	port = 3000;
+    path = require('path'),
+    url = require('url'),
+    querystring = require('querystring'),
+    lwip = require('lwip'),
+    port = 3000;
 /**
  * creat a filename based on the query params
  */
@@ -12,10 +12,34 @@ function createModFileName(params, fileName) {
     var extra = '';
     if (params.x) {
         extra += 'x' + params.x; 
-    } else if (params.y) {
+    }
+    if (params.y) {
         extra += 'y' + params.y; 
     }
+    if (params.degs) {
+        extra += 'degs' + params.degs; 
+    }
     return './images/' + extra + fileName;
+}
+/**
+ * handle image and do different manipulations
+ */
+function handleImage(params, image, cb) {
+    if (params.action === 'rotate') {
+        if (params.degs) {
+            var degs = parseFloat(params.degs);
+            image.rotate(degs, 'white', function(err, image) {
+                cb(image);
+            });
+        } else {
+            cb(image);
+        }
+    } else {
+        var scale = calculateScale(params, image);
+        image.scale(scale, function(err, image) {
+            cb(image);
+        });
+    }
 }
 /**
  * calculate the scale of the image
@@ -31,20 +55,24 @@ function calculateScale(params, image) {
 }
 
 http.createServer(function (request, response) {
-	var reqUrl = url.parse(request.url);
-	var params = querystring.parse(reqUrl.query);
-	var fileName = reqUrl.pathname.slice(1);
-    var filePath = './orgimages' + reqUrl.pathname;
+    var reqUrl = url.parse(request.url);
+    var params = querystring.parse(reqUrl.query);
+    var fileName = reqUrl.pathname.slice(1);
+
+    var filePath = 'notexists';
+    if (reqUrl.pathname !== '/') {
+        var filePath = './orgimages' + reqUrl.pathname;
+    }    
 
     var modFilePath;
     if (reqUrl.query !== null) {
-    	modFilePath = createModFileName(params, fileName);
+        modFilePath = createModFileName(params, fileName);
     }
 
     var extname = path.extname(filePath);
-    var contentType = 'image/jpeg';
+    var contentType = 'text/html';
     switch (extname) {
-    	case '.jpg':
+        case '.jpg':
             contentType = 'image/jpeg';
             imgType = 'jpg';
             imgOps = {quality: 90};
@@ -66,53 +94,56 @@ http.createServer(function (request, response) {
             // deliver original image
             if (!modFilePath) {
                 fs.readFile(filePath, function(error, content) {
-	                if (error) {
-	                	console.log('error read image');
-	                    response.writeHead(500);
-	                    response.end();
-	                } else {
-	                    response.writeHead(200, { 'Content-Type': contentType });
-	                    response.end(content);
-	                }
+                    if (error) {
+                        console.log('error read image', filePath);
+                        response.writeHead(500);
+                        response.end();
+                    } else {
+                        response.writeHead(200, { 'Content-Type': contentType });
+                        response.end(content);
+                    }
                 });
             } else {
                 fs.exists(modFilePath, function(exists) {
                     if (exists === true) {
                         fs.readFile(modFilePath, function(error, content) {
                             if (error) {
-                            	console.log('error read modified image');
-			                    response.writeHead(500);
-			                    response.end();
-			                } else {
-			                    response.writeHead(200, { 'Content-Type': contentType });
-			                    response.end(content);
-			                }     	
+                                console.log('error read modified image');
+                                response.writeHead(500);
+                                response.end();
+                            } else {
+                                response.writeHead(200, { 'Content-Type': contentType });
+                                response.end(content);
+                            }       
                         }); 
                     } else {
-                    	lwip.open(filePath, function(err, image) {
-                    	    var scale = calculateScale(params, image);
-                            image.scale(scale, function(err, image) {
-                            	image.toBuffer(imgType, imgOps, function(err, buffer) {
-                            		// deliver modified image
+                        lwip.open(filePath, function(err, image) {
+                            handleImage(params, image, function(image) {
+                                image.toBuffer(imgType, imgOps, function(err, buffer) {
+                                    // deliver modified image
                                     response.end(buffer);
                                     // save modified image to disc
                                     fs.writeFile(modFilePath, buffer, function(err) {
-									    if(err) {
-									        console.log(err);
-									    } else {
-									        console.log("The file was saved!");
-									    }
-									}); 
+                                        if(err) {
+                                            console.log(err);
+                                        } else {
+                                            console.log("The file is saved!");
+                                        }
+                                    });
                                 });
                             });
                         });                        
                     }
-                });	
+                }); 
             }
         } else {
-        	console.log('original image not exists');
-        	response.writeHead(500);
-			response.end();
+            if (contentType === 'text/html') {
+                response.end('<html><body><h1>Error</h1><p>No image gets requested!</p></body></html>');
+            } else {
+                console.log('original image not exists'); 
+                response.writeHead(500);
+                response.end();
+            }            
         }
     });
 }).listen(port);
