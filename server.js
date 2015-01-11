@@ -10,6 +10,21 @@ var http = require('http'),
  */
 function createModFileName(params, fileName) {
     var extra = '';
+    if (params.action) {
+        extra += params.action; 
+        if (params.left) {
+            extra += params.left; 
+        }
+        if (params.top) {
+            extra += params.top; 
+        }
+        if (params.right) {
+            extra += params.right; 
+        }
+        if (params.bottom) {
+            extra += params.bottom; 
+        }
+    }
     if (params.x) {
         extra += 'x' + params.x; 
     }
@@ -34,6 +49,14 @@ function handleImage(params, image, cb) {
         } else {
             cb(image);
         }
+    } else if (params.action === 'crop') {
+        var left = parseInt(params.left, 10) || 0;
+        var top = parseInt(params.top, 10) || 0;
+        var right = parseInt(params.right, 10) || 0;
+        var bottom = parseInt(params.bottom, 10) || 0;
+        image.crop(left, top, right, bottom, function(err, image) {
+            cb(image);
+        });
     } else {
         var scale = calculateScale(params, image);
         image.scale(scale, function(err, image) {
@@ -61,7 +84,7 @@ http.createServer(function (request, response) {
 
     var filePath = 'notexists';
     if (reqUrl.pathname !== '/') {
-        var filePath = './orgimages' + reqUrl.pathname;
+        filePath = './orgimages' + reqUrl.pathname;
     }    
 
     var modFilePath;

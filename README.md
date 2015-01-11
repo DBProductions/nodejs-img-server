@@ -1,7 +1,7 @@
 # NodeJS img server
 
-A simple image server made with NodeJS, it serves images as original or scaled version.
-To manipulte the images the npm package `lwip` is used.
+A simple image server made with NodeJS, it serves images as original or scaled version.  
+To manipulte the images, `lwip` is used, there is no additional programm needed.
 
 ## Getting started
 
@@ -23,12 +23,21 @@ The images get served normal when requested.
 
     http://127.0.0.1:3000/image.jpg
 
-`x` and `y` are possible query parameters to get a scaled image.
+### Scale
 
     http://127.0.0.1:3000/image.jpg?x=300
+    http://127.0.0.1:3000/image.jpg?y=200
 
-The server looks for a image named `x300image.jpg` in the images folder.
-When found it serves this file otherwise a file with this name gets created and scaled to the percentge difference of the given parameter and the original size of the image.
+### Rotate
+
+    http://127.0.0.1:3000/image.jpg?action=rotate&degs=45
+
+### Crop
+
+    http://127.0.0.1:3000/image.jpg?action=crop&left=0&top=0&right=20&bottom=50
+
+The server looks for a image named specific to the requested parameters in the images folder.  
+When found it serves this file otherwise a file with this name gets created.
 
 ## Feedback
 Star this repo if you found it useful. Use the github issue tracker to give feedback on this repo.
