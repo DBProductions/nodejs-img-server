@@ -1,7 +1,9 @@
 # NodeJS img server
 
 A simple image server made with NodeJS, it serves images as original or scaled version.  
-To manipulte the images, `lwip` is used, there is no additional programm needed.
+To manipulte the images, `lwip` is used, there is no additional program needed.
+
+[lwip](https://www.npmjs.com/package/lwip)
 
 ## Getting started
 
@@ -22,6 +24,8 @@ Put your images into a `orgimages` folder.
 The images get served normal when requested.
 
     http://127.0.0.1:3000/image.jpg
+
+Then you can use the following `lwip` functions to manipulate your images.
 
 ### Scale
 
