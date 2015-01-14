@@ -36,6 +36,22 @@ The images get served normal when requested.
 
     http://127.0.0.1:3000/image.jpg?action=crop&left=0&top=0&right=20&bottom=50
 
+### Blur
+
+    http://127.0.0.1:3000/image.jpg?action=blur&sigma=1.0
+
+### Sharpen
+
+    http://127.0.0.1:3000/image.jpg?action=sharpen&amplitude=1.0
+
+### Mirror
+
+    http://127.0.0.1:3000/image.jpg?action=mirror&axes=x
+
+### Border
+    
+    http://127.0.0.1:3000/image.jpg?action=border&width=5&color=black
+
 The server looks for a image named specific to the requested parameters in the images folder.  
 When found it serves this file otherwise a file with this name gets created.
 

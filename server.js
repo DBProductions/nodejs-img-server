@@ -24,6 +24,18 @@ function createModFileName(params, fileName) {
         if (params.bottom) {
             extra += params.bottom; 
         }
+        if (params.width && params.color) {
+            extra += params.width + params.color; 
+        }
+        if (params.axes) {
+            extra += params.axes;
+        }
+        if (params.sigma) {
+            extra += params.sigma;
+        }
+        if (params.amplitude) {
+            extra += params.amplitude;
+        }        
     }
     if (params.x) {
         extra += 'x' + params.x; 
@@ -55,6 +67,27 @@ function handleImage(params, image, cb) {
         var right = parseInt(params.right, 10) || 0;
         var bottom = parseInt(params.bottom, 10) || 0;
         image.crop(left, top, right, bottom, function(err, image) {
+            cb(image);
+        });
+    } else if (params.action === 'blur') {
+        var sigma = parseFloat(params.sigma);
+        image.blur(sigma, function(err, image) {
+            cb(image);
+        });
+    } else if (params.action === 'sharpen') {
+        var amplitude = parseFloat(params.amplitude);
+        image.blur(amplitude, function(err, image) {
+            cb(image);
+        });
+    } else if (params.action === 'mirror') {
+        var axes = params.axes || 'x';
+        image.mirror(axes, function(err, image) {
+            cb(image);
+        });
+    } else if (params.action === 'border') {
+        var width = parseInt(params.width, 10) || 0;
+        var color = params.color || 'black';
+        image.border(width, color, function(err, image) {
             cb(image);
         });
     } else {
